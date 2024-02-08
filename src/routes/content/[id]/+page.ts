@@ -3,7 +3,7 @@ import { currentUser, pb } from '$lib/pocketbase';
 
 export const load = (async ({ params }) => {
 	try {
-		const record = await pb.collection('notes').getOne(params.id, { expand: 'user' });
+		const record = await pb.collection('posts').getOne(params.id, { expand: 'user' });
 		return {
 			success: !!record.id,
 			record

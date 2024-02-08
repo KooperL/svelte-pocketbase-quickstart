@@ -6,10 +6,10 @@
 
 	let spanClass = 'flex-1 ms-3 whitespace-nowrap';
 	$: activeUrl = $page.url.pathname;
-	let notes = new Promise(() => {});
+	let posts = new Promise(() => {});
 
 	if ($currentUser?.model?.id) {
-		notes = pb.collection('notes').getList(1, 1, {
+		posts = pb.collection('posts').getList(1, 1, {
 			filter: `user = '${$currentUser?.model?.id}'`
 		});
 	}
@@ -33,10 +33,10 @@
 				</SidebarItem>
 
 				<SidebarItem
-					label="Notes"
+					label="Posts"
 					{spanClass}
-					href="/account/notes"
-					active={activeUrl === '/account/notes'}
+					href="/account/posts"
+					active={activeUrl === '/account/posts'}
 				>
 					<svelte:fragment slot="icon">
 						<FolderOpenSolid
@@ -47,7 +47,7 @@
 						<span
 							class="ms-3 inline-flex h-3 w-3 items-center justify-center rounded-full bg-primary-200 p-3 text-sm font-medium text-primary-600 dark:bg-primary-900 dark:text-primary-200"
 						>
-							{#await notes}
+							{#await posts}
 								0
 							{:then items}
 								{items.totalItems}

@@ -21,15 +21,12 @@
 	import { FireOutline, ExclamationCircleOutline } from 'flowbite-svelte-icons';
 	import { toast } from '$lib/app/stores';
 	import * as sanitizeHtml from 'sanitize-html';
+	import { goto } from '$app/navigation';
 
 	export let data: PageData;
-	let yourRating: number;
 	let newComment = '';
 	let unsubscribe: () => void;
-	let decryptionKey;
 	let content = data.success && data?.record?.content;
-	const stars = new Array(5);
-	let isHoveringOverRatings = false;
 
 	onMount(async () => {
 		$metadata.title = data.record.title;
@@ -40,40 +37,18 @@
 		$metadata.title = undefined;
 	});
 
-	function decryptText(encryptedText, password) {
-		try {
-			const bytes = CryptoJS.AES.decrypt(encryptedText, password);
-			const contentContainer = document.querySelector('#content');
-			contentContainer.innerHTML = sanitizeHtml(bytes.toString(CryptoJS.enc.Utf8));
-		} catch (e) {
-			console.error(e);
-		}
-	}
-
-	async function fetchRatings() {
-		if (!data.success) {
-			return;
-		}
-		let ratingResp = await fetchCustomEndpoint(pocketbaseCustomEndpoints.noteRating, {
-			url: [{ key: 'noteId', value: data.record.id }],
-			method: 'get'
-		});
-		return ratingResp.data.data;
-	}
-
 	async function fetchComments() {
 		if (!data.success) {
 			return;
 		}
 
 		let commentsResp = await pb.collection('comments').getList(1, 50, {
-			filter: `note = "${data.record.id}"`,
+			filter: `post = "${data.record.id}"`,
 			expand: 'user'
 		});
 		return commentsResp.items;
 	}
 
-	let ratings = fetchRatings();
 	let comments = fetchComments();
 
 	onDestroy(async () => {
@@ -82,7 +57,7 @@
 	});
 
 	async function share() {
-		await fetchCustomEndpoint(pocketbaseCustomEndpoints.noteShare, data.record.id);
+		await fetchCustomEndpoint(pocketbaseCustomEndpoints.share, data.record.id);
 	}
 	async function addComment() {
 		if (newComment.trim() === '') {
@@ -91,39 +66,24 @@
 		const payload = {
 			content: newComment,
 			user: $currentUser?.model?.id,
-			note: data?.record?.id
+			post: data?.record?.id
 		};
 		const createdMessage = await pb.collection('comments').create(payload);
 		comments = fetchComments();
 		newComment = '';
 	}
 
-	async function submitRating(ind) {
-		if ($currentUser) {
-			let ratingResp = await fetchCustomEndpoint(pocketbaseCustomEndpoints.submitNoteRating, {
-				url: [{ key: 'noteId', value: data.record.id }],
-				payload: {
-					score: ind + 1
-				},
-				method: 'post'
-			});
-
-			ratings = fetchRatings();
-		} else {
-			goto(`/login?returnTo=${page.path}`);
-		}
-	}
 	async function report() {
 		if ($currentUser) {
 			const payload = {
-				message: `Reporting noteIde: ${data.record.id}`,
+				message: `Reporting postId: ${data.record.id}`,
 				user: $currentUser.model.id,
 				type: 'report'
 			};
 
 			const record = await pb.collection('enquiries').create(payload);
 			$toast.text =
-				'Note has been reported. Our moderation team will review it and make the necessary action.';
+				'Post has been reported. Our moderation team will review it and make the necessary action.';
 			$toast.icon = 'ExclamationCircleOutline';
 			setTimeout(() => {
 				$toast.text = undefined;
@@ -150,42 +110,6 @@
 		</div>
 
 		<div class="mt-4 flex flex-row justify-between">
-			<div>
-				<h3 class="text-xl font-semibold dark:text-white">Rating</h3>
-				{#await ratings}
-					<Spinner />
-				{:then data}
-					<div
-						on:mouseenter={() => {
-							isHoveringOverRatings = true;
-						}}
-						on:mouseleave={() => {
-							isHoveringOverRatings = false;
-						}}
-					>
-						{#if isHoveringOverRatings}
-							<div class="flex">
-								{#each stars as star, ind}
-									<div
-										on:mouseenter={() => {
-											yourRating = ind + 1;
-										}}
-										on:click={() => submitRating(ind)}
-									>
-										<Star fillPercent={yourRating > ind ? 100 : 0} />
-									</div>
-								{/each}
-							</div>
-						{:else}
-							<div class="flex">
-								{#each stars as star, ind}
-									<Star fillPercent={data?.averageRating > ind ? 100 : 0} />
-								{/each}
-							</div>
-						{/if}
-					</div>
-				{/await}
-			</div>
 			<div class="mb-6">
 				<ButtonGroup class="flex h-full w-full">
 					<Input
@@ -209,23 +133,6 @@
 			</div>
 		</div>
 
-		{#if data.record.encrypted}
-			<div class="mb-6 mt-6">
-				<ButtonGroup class="flex h-full w-full">
-					<Input
-						id="decryption-key"
-						type="text"
-						bind:value={decryptionKey}
-						class="flex-2"
-						placeholder="Decrpytion key"
-					></Input>
-					<Button
-						class="m-0 max-h-full w-full flex-1 text-gray-500 dark:text-gray-400"
-						on:click={() => decryptText(content, decryptionKey)}>Decrypt</Button
-					>
-				</ButtonGroup>
-			</div>
-		{/if}
 		{#if content}
 			<div
 				class="mx-auto w-full break-words rounded bg-gray-50 px-4 py-6 font-sans text-base leading-relaxed text-gray-900 dark:bg-gray-800 dark:text-gray-300"

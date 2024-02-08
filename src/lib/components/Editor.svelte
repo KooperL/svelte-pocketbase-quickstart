@@ -8,8 +8,6 @@
 
 	let userContent = '';
 	let userContentTitle = '';
-	let encrpyionKey;
-	let encryptionEnabled;
 	let privateEnabled;
 
 	onMount(() => {
@@ -23,10 +21,6 @@
 		const editor = new Quill(container, options);
 	});
 
-	function encryptText(plainText, password) {
-		return CryptoJS.AES.encrypt(plainText, password).toString();
-	}
-
 	async function saveContent() {
 		const myEditor = document.querySelector('#editor');
 		userContent = sanitizeHtml(myEditor.children[0].innerHTML);
@@ -34,13 +28,12 @@
 			return;
 		}
 		const data = {
-			content: encryptionEnabled ? encryptText(userContent, encrpyionKey) : userContent,
+			content: userContent,
 			user: $currentUser?.model?.id ?? undefined,
 			title: userContentTitle,
-			encrypted: encryptionEnabled,
 			private: privateEnabled
 		};
-		const createdMessage = await pb.collection('notes').create(data);
+		const createdMessage = await pb.collection('posts').create(data);
 		console.log('createdMessage', createdMessage);
 		goto(`/content/${createdMessage.id}`);
 	}
@@ -58,19 +51,7 @@
 		<button class="ql-italic"></button>
 	</div>
 	<div id="editor" class="dark:text-white"></div>
-	<div class="mt-3 flex h-full w-full gap-3">
-		<Toggle
-			on:click={() => (encryptionEnabled = !encryptionEnabled)}
-			class="m-0 max-h-full w-full flex-1 text-gray-500 dark:text-gray-400">Encrypt</Toggle
-		>
-		<Input
-			disabled={!encryptionEnabled}
-			id="email"
-			bind:value={encrpyionKey}
-			class="flex-2"
-			placeholder="Encrption Key"
-		/>
-	</div>
+
 	{#if $currentUser.model}
 		<Toggle
 			on:click={() => (privateEnabled = !privateEnabled)}

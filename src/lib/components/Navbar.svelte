@@ -28,7 +28,7 @@
 		>
 	</NavBrand>
 	<div class="flex gap-3 md:order-2">
-		<Button href={'/new'}>New note</Button>
+		<Button href={'/new'}>New post</Button>
 		{#if $currentUser?.token}
 			<Button
 				on:click={async () => {

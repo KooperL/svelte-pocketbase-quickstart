@@ -3,9 +3,9 @@
 	import { onMount } from 'svelte';
 	import { Card, Button, Skeleton } from 'flowbite-svelte';
 	import { site } from '$lib/config';
-	import NotePreviewCard from '$lib/components/NotePreviewCard.svelte';
+	import PostPreviewCard from '$lib/components/PostPreviewCard.svelte';
 
-	let notes = pb.collection('notes').getList(1, 50, {
+	let posts = pb.collection('posts').getList(1, 50, {
 		filter: 'private = false'
 	});
 
@@ -23,11 +23,11 @@
 		<div
 			class="items-center justify-center space-y-4 sm:flex sm:space-x-4 sm:space-y-0 rtl:space-x-reverse"
 		>
-			<Button href="/new">Make a new note</Button>
+			<Button href="/new">Make a new post</Button>
 		</div>
 	</Card>
-	<h5 class="mb-2 mt-5 text-3xl font-bold text-gray-900 dark:text-white">Recent notes</h5>
-	{#await notes}
+	<h5 class="mb-2 mt-5 text-3xl font-bold text-gray-900 dark:text-white">Recent posts</h5>
+	{#await posts}
 		<Card class="flex w-full flex-col">
 			<Skeleton size="md" class="my-8" />
 			<Skeleton size="md" class="my-8" />
@@ -37,12 +37,12 @@
 			<div
 				class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
 			>
-				{#each data.items as note}
+				{#each data.items as post}
 					<div class="h-auto w-full">
-						<NotePreviewCard
-							id={note.id}
-							title={note.title}
-							content={note.content}
+						<PostPreviewCard
+							id={post.id}
+							title={post.title}
+							content={post.content}
 							class="h-10 w-full"
 						/>
 					</div>
