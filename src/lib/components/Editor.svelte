@@ -4,7 +4,6 @@
 	import CryptoJS from 'crypto-js';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import * as sanitizeHtml from 'sanitize-html';
 
 	let userContent = '';
 	let userContentTitle = '';
@@ -22,8 +21,8 @@
 	});
 
 	async function saveContent() {
-		const myEditor = document.querySelector('#editor');
-		userContent = sanitizeHtml(myEditor.children[0].innerHTML);
+		const myEditor = document.querySelector('#editor') as Element;
+		userContent = myEditor.children[0].innerHTML;
 		if (!userContent) {
 			return;
 		}

@@ -41,7 +41,6 @@
 		"axios": "^1.6.5",
 		"crypto-js": "^4.2.0",
 		"flowbite-svelte-icons": "^1.0.3",
-		"pocketbase": "^0.20.3",
-		"sanitize-html": "^2.11.0"
+		"pocketbase": "^0.20.3"
 	}
 }
