@@ -4,14 +4,15 @@
 	import { toast } from '$lib/app/stores';
 	import { page } from '$app/stores';
 
-	let username: string;
+	let email: string;
 	let password: string;
 	let passwordConfirm: string;
+	let errorState = false;
 
 	async function signUp() {
 		try {
 			const data = {
-				username,
+				email,
 				password,
 				passwordConfirm
 			};
@@ -19,6 +20,10 @@
 		} catch (err) {
 			console.error(err);
 		}
+	}
+
+	async function login() {
+		const authData = await pb.collection('users').authWithPassword(email, password);
 	}
 
 	async function onSubmit(e) {
@@ -32,16 +37,24 @@
 			goto(`/login`);
 		} catch (e) {
 			console.error('Error registering user');
+			errorState = true;
 		}
 	}
 </script>
 
-<div class="mt-4 bg-gray-100 bg-white px-8 py-6 text-left shadow-lg">
+<div class="rounded px-8 py-6 text-left shadow-lg dark:bg-gray-100 w-full md:w-1/3">
 	<h3 class="text-center text-2xl font-bold">Create an Account</h3>
+	<p class="text-center">
+		Already have an account? <a class="text-primary-700" href="/login">Login</a>
+	</p>
+	
 	<form on:submit|preventDefault class="mt-4">
+		{#if errorState}
+			<p class="text-red-500">There was an issue signing up</p>
+		{/if}
 		<div>
-			<label class="block" for="username">Username</label>
-			<Input id="username" type="text" bind:value={username} placeholder="Username" />
+			<label class="block" for="email">Email</label>
+			<Input id="email" type="text" bind:value={email} placeholder="email@example.com" />
 		</div>
 		<div class="mt-4">
 			<label class="block" for="password">Password</label>
@@ -61,9 +74,8 @@
 				>terms of service</a
 			>
 		</p>
-		<div class="mt-4 flex items-center justify-between gap-5">
+		<div class="mt-4 flex items-center justify-center gap-5">
 			<Button on:click={onSubmit} type="button">Register</Button>
-			<Button class="" href="/login">Login</Button>
 		</div>
 	</form>
 </div>

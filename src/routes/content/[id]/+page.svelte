@@ -20,7 +20,6 @@
 	import { pocketbaseCustomEndpoints, fetchCustomEndpoint } from '../../../api/pocketbaseCustom';
 	import { FireOutline, ExclamationCircleOutline } from 'flowbite-svelte-icons';
 	import { toast } from '$lib/app/stores';
-	import * as sanitizeHtml from 'sanitize-html';
 	import { goto } from '$app/navigation';
 
 	export let data: PageData;
