@@ -29,7 +29,8 @@
 
 	onMount(async () => {
 		$metadata.title = data.record.title;
-		document.querySelector('#content').innerHTML = sanitizeHtml(content);
+		// unsafe content vulvnerability
+		document.querySelector('#content').innerHTML = content;
 	});
 
 	onDestroy(async () => {

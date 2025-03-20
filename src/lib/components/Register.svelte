@@ -3,6 +3,7 @@
 	import { pb } from '../pocketbase';
 	import { toast } from '$lib/app/stores';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	let email: string;
 	let password: string;
